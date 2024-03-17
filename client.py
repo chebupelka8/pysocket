@@ -13,7 +13,14 @@ HOST, PORT = 'localhost', 5050
 class Client:
     def __init__(self, address: Tuple[str, int]) -> None:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.connect(address)
+
+        try:
+            self.client.connect(address)
+
+        except ConnectionRefusedError:  # if server is not running
+            ClientNotifier.disconnection_notify(address, "Server is not running")
+            self.client.close()
+            sys.exit()
 
         ClientNotifier.connection_notify(address)  # notify about the connection
 
@@ -32,11 +39,13 @@ class Client:
         self.client.sendall(bytes(json.dumps(data), "utf-8"))
 
     def disconnect(self) -> None:
+        self.__destroy()
+
+        ClientNotifier.disconnection_notify(self.__address, "Client was disconnected")  # notify about disconnection
+
+    def __destroy(self) -> None:
         self.__is_connected = False
         self.client.close()
-
-        ClientNotifier.disconnection_notify(self.__address, "Client was disconnected")
-        sys.exit()
 
     def receive(self) -> Never:
         while self.__is_connected:
@@ -56,14 +65,14 @@ class Client:
 
             except ConnectionResetError:
                 ClientNotifier.disconnection_notify(self.__address, "Server has broken the connection")
-                self.client.close()
+                self.__destroy()
                 break
 
             except OSError:
-                ClientNotifier.disconnection_notify(self.__address, "Client was disconnected")
-                self.client.close()
+                self.__destroy()
                 break
 
+        sys.exit()
 
     def __repr__(self) -> str:
         return f'Client(address={self.__address})'

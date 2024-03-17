@@ -1,5 +1,3 @@
-import sys
-
 from SwitchGame import *
 
 from client import Client
@@ -21,6 +19,7 @@ class Main(WindowLoop):
 
     def main(self) -> None:
         while True:  # mainloop
+
             self.update_display()
 
 
