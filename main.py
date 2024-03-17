@@ -19,6 +19,9 @@ class Main(WindowLoop):
 
     def main(self) -> None:
         while True:  # mainloop
+            for i in self.client.get_players():
+                player = StaticSprite(Vec2(*i["position"]), Image("SwitchGame/assets/icon.png"))
+                player.draw(self.display)
 
             self.update_display()
 

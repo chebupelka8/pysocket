@@ -32,6 +32,9 @@ class Client:
         # start receive in the new thread: --
         threading.Thread(target=self.receive).start()
 
+    def get_players(self) -> list:
+        return self.__players
+
     def get_response(self) -> dict:
         return json.loads(self.client.recv(1024).decode('UTF-8'))
 
@@ -61,7 +64,7 @@ class Client:
                 if received["response"] == "get_players":
                     self.__players = received["players"]
 
-                print(self.__players)
+                # print(self.__players)
 
             except ConnectionResetError:
                 ClientNotifier.disconnection_notify(self.__address, "Server has broken the connection")

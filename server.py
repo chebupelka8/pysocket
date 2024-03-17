@@ -2,6 +2,7 @@ import socket
 import json
 
 import threading
+import random
 
 from dataclasses import dataclass
 
@@ -66,7 +67,7 @@ class Server:
         return result
 
     def handle_client(self, client: socket.socket, address: Tuple[str, int]) -> None:
-        player = _Player(len(self.__clients), address, client, (100, 100))
+        player = _Player(len(self.__clients), address, client, (random.randint(0, 300), 100))
         self.__players.append(player)
 
         while True:
