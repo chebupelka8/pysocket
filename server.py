@@ -3,8 +3,6 @@ import json
 
 import threading
 
-import colorama
-
 from typing import Tuple, Never
 from notify import ServerNotifier
 
@@ -34,19 +32,21 @@ class Server:
 
             threading.Thread(target=self.handle_client, args=(client, address)).start()  # start handle client
 
+    def __disconnect_client(self, address: Tuple[str, int], client) -> None:
+        ServerNotifier.notify_disconnected(address)
+        self.__clients.remove(client)
+
     def handle_client(self, client: socket.socket, address: Tuple[str, int]) -> None:
         while True:
             try:
                 data = json.loads(client.recv(1024).decode('utf-8'))
 
                 if not data:  # if client disconnect
-                    ServerNotifier.notify_disconnected(address)
-                    self.__clients.remove(client)
+                    self.__disconnect_client(address, client)
                     break
 
             except (ConnectionResetError, OSError):
-                ServerNotifier.notify_disconnected(address)
-                self.__clients.remove(client)
+                self.__disconnect_client(address, client)
                 break
 
 

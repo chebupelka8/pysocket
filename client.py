@@ -37,7 +37,7 @@ class Client:
                 break
 
     def __repr__(self) -> str:
-        return f'Client(addr={self.__address})'
+        return f'Client(address={self.__address})'
 
 
 if __name__ == '__main__':
