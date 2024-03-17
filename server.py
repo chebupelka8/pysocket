@@ -7,6 +7,7 @@ import random
 from dataclasses import dataclass
 
 from typing import Tuple, Never
+from SwitchGame import Vec2
 
 from notify import ServerNotifier
 
@@ -18,7 +19,7 @@ class _Player:
     id: int
     address: Tuple[str, int]
     sock: socket.socket
-    position: Tuple[int, int]
+    position: Vec2
 
 
 class Server:
@@ -61,13 +62,13 @@ class Server:
             result.append({
                 'id': player.id,
                 'address': player.address,
-                'position': player.position
+                'position': player.position.xy
             })
 
         return result
 
     def handle_client(self, client: socket.socket, address: Tuple[str, int]) -> None:
-        player = _Player(len(self.__clients), address, client, (random.randint(0, 300), 100))
+        player = _Player(len(self.__clients), address, client, Vec2(random.randint(0, 300), 100))
         self.__players.append(player)
 
         while True:
@@ -78,13 +79,25 @@ class Server:
                     self.__disconnect_client(address, client, player)
                     break
 
-                if data['request'] == 'get_players':
+                if data['request'] == 'get_players':  # send all players on the server
                     self.__send({
                         "response": "get_players",
                         "players": self.__get_players()
                     }, client)
 
-            except (ConnectionResetError, OSError, json.decoder.JSONDecodeError):
+                if data['request'] == 'move':
+                    if data["side"] == "up":
+                        player.position.y -= 1
+                    if data["side"] == "down":
+                        player.position.y += 1
+
+                    if data["side"] == "left":
+                        player.position.x -= 1
+                    if data["side"] == "right":
+                        player.position.x += 1
+
+            except (ConnectionResetError, OSError, json.decoder.JSONDecodeError) as e:
+                print(e)
                 self.__disconnect_client(address, client, player)
                 break
 

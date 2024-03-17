@@ -23,6 +23,17 @@ class Main(WindowLoop):
                 player = StaticSprite(Vec2(*i["position"]), Image("SwitchGame/assets/icon.png"))
                 player.draw(self.display)
 
+            keypressed = pygame.key.get_pressed()
+
+            if keypressed[K_w]:
+                self.client.move("up")
+            if keypressed[K_s]:
+                self.client.move("down")
+            if keypressed[K_d]:
+                self.client.move("right")
+            if keypressed[K_a]:
+                self.client.move("left")
+
             self.update_display()
 
 

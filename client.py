@@ -35,16 +35,22 @@ class Client:
     def get_players(self) -> list:
         return self.__players
 
-    def get_response(self) -> dict:
-        return json.loads(self.client.recv(1024).decode('UTF-8'))
-
-    def __send(self, data: dict) -> None:
-        self.client.sendall(bytes(json.dumps(data), "utf-8"))
-
     def disconnect(self) -> None:
         self.__destroy()
 
         ClientNotifier.disconnection_notify(self.__address, "Client was disconnected")  # notify about disconnection
+
+    def move(self, __side: str) -> None:
+        self.__send({
+            "request": "move",
+            "side": __side
+        })
+
+    def __get_response(self) -> dict:
+        return json.loads(self.client.recv(1024 * 4).decode('UTF-8'))
+
+    def __send(self, data: dict) -> None:
+        self.client.sendall(bytes(json.dumps(data), "utf-8"))
 
     def __destroy(self) -> None:
         self.__is_connected = False
@@ -59,7 +65,7 @@ class Client:
                 })
 
                 # get response
-                received = self.get_response()
+                received = self.__get_response()
 
                 if received["response"] == "get_players":
                     self.__players = received["players"]
