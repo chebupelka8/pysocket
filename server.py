@@ -37,7 +37,7 @@ class Server:
                     self.__clients.remove(client)
                     break
 
-            except ConnectionResetError:
+            except (ConnectionResetError, OSError):
                 print(f'Client {address} disconnected.')
                 self.__clients.remove(client)
                 break
