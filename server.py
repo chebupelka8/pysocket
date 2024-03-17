@@ -30,14 +30,13 @@ class Server:
         ServerNotifier.start_server()  # notify about the start
 
         # variables setup: --
-        self.__is_working = True
         self.__clients: list[socket.socket] = []
         self.__players: list[_Player] = []
 
     def listen(self) -> Never:
         ServerNotifier.listening_server()
 
-        while self.__is_working:
+        while True:
             client, address = self.server.accept()
             self.__clients.append(client)
 
