@@ -2,7 +2,6 @@ import socket
 import json
 
 import threading
-import random
 
 from dataclasses import dataclass
 
@@ -68,12 +67,12 @@ class Server:
         return result
 
     def handle_client(self, client: socket.socket, address: Tuple[str, int]) -> None:
-        player = _Player(len(self.__clients), address, client, Vec2(random.randint(0, 300), 100))
+        player = _Player(len(self.__clients), address, client, Vec2(200, 100))
         self.__players.append(player)
 
         while True:
             try:
-                data = json.loads(client.recv(1024).decode('utf-8'))
+                data = json.loads(client.recv(1024 * 4).decode('utf-8'))
 
                 if not data:  # if client disconnect
                     self.__disconnect_client(address, client, player)
@@ -97,7 +96,8 @@ class Server:
                         player.position.x += 1
 
             except (ConnectionResetError, OSError, json.decoder.JSONDecodeError) as e:
-                print(e)
+                print(data)
+                print(e.with_traceback())
                 self.__disconnect_client(address, client, player)
                 break
 
