@@ -9,6 +9,9 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 colorama = "^0.4.6"
+pygame-ce = "^2.4.1"
+pillow = "^10.2.0"
+keyboard = "^0.13.5"
 
 
 [build-system]

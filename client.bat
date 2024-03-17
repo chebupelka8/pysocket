@@ -11,5 +11,5 @@ if "%1" == "" (
 
 for /l %%i in (1 1 %clients%) do (
     echo Client %%i has connected.
-    start cmd /k python client.py
+    start cmd /k python main.py
 )
