@@ -8,5 +8,5 @@ echo Server has started.
 if "%1" == "" (
     echo empty parameter.
 ) else (
-    call .\clnt.bat %1
+    call .\client.bat %1
 )
