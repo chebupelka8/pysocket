@@ -1,3 +1,13 @@
+<p align="center">
+
+  <img src="https://img.shields.io/badge/version-v0.1.0-green">
+  <img src="https://img.shields.io/github/license/chebupelka8/pysocket">
+  <img src="https://img.shields.io/github/commit-activity/t/chebupelka8/pysocket"> 
+  <img src="https://img.shields.io/github/stars/chebupelka8/pysocket">
+  <img src="https://img.shields.io/github/watchers/chebupelka8/pysocket">
+  
+</p>
+
 ```shell
 # how to launch server
 >>> serv
