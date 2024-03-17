@@ -3,7 +3,10 @@ import json
 
 import threading
 
+import colorama
+
 from typing import Tuple, Never
+from notify import ServerNotifier
 
 HOST, PORT = 'localhost', 5050
 
@@ -14,16 +17,20 @@ class Server:
         self.server.bind(addr)
         self.server.listen()
 
+        ServerNotifier.start_server()  # notify about the start
+
         # variables setup: --
         self.__is_working = True
         self.__clients = []
 
     def listen(self) -> Never:
+        ServerNotifier.listening_server()
+
         while self.__is_working:
             client, address = self.server.accept()
             self.__clients.append(client)
 
-            print(f'Client {address} connected.')
+            ServerNotifier.notify_connected(address)  # notify about the connect client
 
             threading.Thread(target=self.handle_client, args=(client, address)).start()  # start handle client
 
@@ -33,12 +40,12 @@ class Server:
                 data = json.loads(client.recv(1024).decode('utf-8'))
 
                 if not data:  # if client disconnect
-                    print(f'Client {address} disconnected.')
+                    ServerNotifier.notify_disconnected(address)
                     self.__clients.remove(client)
                     break
 
             except (ConnectionResetError, OSError):
-                print(f'Client {address} disconnected.')
+                ServerNotifier.notify_disconnected(address)
                 self.__clients.remove(client)
                 break
 
