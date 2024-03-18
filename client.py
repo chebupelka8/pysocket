@@ -3,6 +3,7 @@ import json
 import sys
 
 import threading
+import time
 
 from typing import Tuple, Never
 from notify import ClientNotifier
@@ -47,10 +48,10 @@ class Client:
         })
 
     def __get_response(self) -> dict:
-        return json.loads(self.client.recv(1024 * 4).decode('UTF-8'))
+        return json.loads(self.client.recv(1024).decode('UTF-8'))
 
     def __send(self, data: dict) -> None:
-        self.client.sendall(bytes(json.dumps(data), "utf-8"))
+        self.client.send(bytes(json.dumps(data), "utf-8"))
 
     def __destroy(self) -> None:
         self.__is_connected = False

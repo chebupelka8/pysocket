@@ -1,5 +1,7 @@
+import random
 import socket
 import json
+import re
 
 import threading
 
@@ -51,7 +53,17 @@ class Server:
 
     @staticmethod
     def __send(data: dict, client) -> None:
-        client.sendall(bytes(json.dumps(data), "utf-8"))
+        client.send(bytes(json.dumps(data), "utf-8"))
+
+    def __test(self, __data: bytes) -> list[dict]:
+        requests = []
+        split_data: list[str] = re.split(r'}(?={)', __data.decode('utf-8'))
+
+        for req in split_data:
+            if req[-1] != "}": req = req + "}"
+            requests.append(json.loads(req))
+
+        return requests
 
     def __get_players(self) -> list[dict]:
         result = []
@@ -66,37 +78,36 @@ class Server:
         return result
 
     def handle_client(self, client: socket.socket, address: Tuple[str, int]) -> None:
-        player = _Player(len(self.__clients), address, client, Vec2(200, 100))
+        player = _Player(len(self.__clients), address, client, Vec2(random.randint(0, 300), 100))
         self.__players.append(player)
 
         while True:
             try:
-                data = json.loads(client.recv(1024 * 4).decode('utf-8'))
+                recv = client.recv(1024)
 
-                if not data:  # if client disconnect
+                if not recv:  # if client disconnect
                     self.__disconnect_client(address, client, player)
                     break
 
-                if data['request'] == 'get_players':  # send all players on the server
-                    self.__send({
-                        "response": "get_players",
-                        "players": self.__get_players()
-                    }, client)
+                for data in self.__test(recv):
+                    if data['request'] == 'get_players':  # send all players on the server
+                        self.__send({
+                            "response": "get_players",
+                            "players": self.__get_players()
+                        }, client)
 
-                if data['request'] == 'move':
-                    if data["side"] == "up":
-                        player.position.y -= 1
-                    if data["side"] == "down":
-                        player.position.y += 1
+                    if data['request'] == 'move':
+                        if data["side"] == "up":
+                            player.position.y -= 1
+                        if data["side"] == "down":
+                            player.position.y += 1
 
-                    if data["side"] == "left":
-                        player.position.x -= 1
-                    if data["side"] == "right":
-                        player.position.x += 1
+                        if data["side"] == "left":
+                            player.position.x -= 1
+                        if data["side"] == "right":
+                            player.position.x += 1
 
-            except (ConnectionResetError, OSError, json.decoder.JSONDecodeError) as e:
-                print(data)
-                print(e.with_traceback())
+            except (ConnectionResetError, OSError, json.decoder.JSONDecodeError):
                 self.__disconnect_client(address, client, player)
                 break
 
