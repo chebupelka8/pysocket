@@ -7,6 +7,8 @@ import time
 
 from src import Strings
 
+from SwitchGame import Vec2
+
 from typing import Tuple, Never
 from notify import ClientNotifier
 
@@ -49,10 +51,10 @@ class Client:
 
         ClientNotifier.disconnection_notify(self.__address, "Client was disconnected")  # notify about disconnection
 
-    def move(self, __to: str) -> None:
+    def move(self, __movement: Vec2) -> None:
         self.__send({
             "request": "move",
-            "side": __to
+            "movement": __movement.xy
         })
 
     def rotate(self, __degrees: int) -> None:

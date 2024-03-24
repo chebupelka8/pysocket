@@ -22,8 +22,9 @@ class _Player:
     address: Tuple[str, int]
     sock: socket.socket
     position: Vec2
-    movement: Vec2
-    degrees: int
+    movement: Vec2 = Vec2(0, 0)
+    degrees: int = 0
+    speed: int = 3
 
 
 class Server:
@@ -85,7 +86,7 @@ class Server:
         return result
 
     def handle_client(self, client: socket.socket, address: Tuple[str, int]) -> None:
-        player = _Player(len(self.__clients), address, client, Vec2(random.randint(0, 300), 100), Vec2(0, 0), 90)
+        player = _Player(len(self.__clients), address, client, Vec2(random.randint(0, 300), 100))
         self.__players.append(player)
 
         self.__send_update_players()
@@ -108,19 +109,11 @@ class Server:
                             "response": "get_players",
                             "players": self.__get_players()
                         }, client)
-                        print(self.__get_players())
 
-                    if data['request'] == 'move':
-                        if data["side"] == "forward":
-                            player.movement.x = 1
+                    elif data['request'] == 'move':
+                        player.movement = Vec2(*data['movement'])
 
-                        elif data["side"] == "backward":
-                            ...
-
-                        # else:
-                        #     player.movement = Vec2(0, 0)
-
-                    if data['request'] == 'rotate':
+                    elif data['request'] == 'rotate':
                         player.degrees = data['degrees']
 
             except (ConnectionResetError, OSError, json.decoder.JSONDecodeError):

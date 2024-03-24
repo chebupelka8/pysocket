@@ -1,6 +1,7 @@
 from SwitchGame import *
 
 from client import Client
+from src import Player, Math
 
 
 class Main(WindowLoop):
@@ -25,7 +26,7 @@ class Main(WindowLoop):
 
         for i in self.client.get_players():
             self.__players.append(
-                StaticSprite(Vec2(*i["position"]), Image("SwitchGame/assets/icon.png"))
+                Player(Vec2(*i["position"]), self.client)
             )
 
     def main(self) -> None:
@@ -33,14 +34,21 @@ class Main(WindowLoop):
 
         while True:  # mainloop
             for player, data in zip(self.__players, self.client.get_players()):
-                # player = StaticSprite(Vec2(*i["position"]), Image("SwitchGame/assets/icon.png"))
                 player.movement = Vec2(*data["movement"])
                 player.draw(self.display)
 
-            keypressed = pygame.key.get_pressed()
+                print(player.get_client() == self.client)
+                #     player.moving()
 
-            if keypressed[K_w]:
-                self.client.move("forward")
+            keypress = pygame.key.get_pressed()
+
+            if keypress[K_w]:
+                self.movement = Math.get_vector_from_angle(0, 3)
+                self.client.move(self.movement)
+
+            else:
+                self.movement = Vec2(0, 0)
+                self.client.move(self.movement)
 
             self.update_display()
 
