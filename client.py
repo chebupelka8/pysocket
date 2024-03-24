@@ -41,10 +41,16 @@ class Client:
 
         ClientNotifier.disconnection_notify(self.__address, "Client was disconnected")  # notify about disconnection
 
-    def move(self, __side: str) -> None:
+    def move(self, __to: str) -> None:
         self.__send({
             "request": "move",
-            "side": __side
+            "side": __to
+        })
+
+    def rotate(self, __degrees: int) -> None:
+        self.__send({
+            "request": "rotate",
+            "degrees": __degrees
         })
 
     def __get_response(self) -> dict:

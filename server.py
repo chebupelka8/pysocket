@@ -11,6 +11,7 @@ from typing import Tuple, Never
 from SwitchGame import Vec2
 
 from notify import ServerNotifier
+from src import Math
 
 HOST, PORT = 'localhost', 5050
 
@@ -21,6 +22,8 @@ class _Player:
     address: Tuple[str, int]
     sock: socket.socket
     position: Vec2
+    movement: Vec2
+    degrees: int
 
 
 class Server:
@@ -55,7 +58,8 @@ class Server:
     def __send(data: dict, client) -> None:
         client.send(bytes(json.dumps(data), "utf-8"))
 
-    def __test(self, __data: bytes) -> list[dict]:
+    @staticmethod
+    def __processing_data(__data: bytes) -> list[dict]:
         requests = []
         split_data: list[str] = re.split(r'}(?={)', __data.decode('utf-8'))
 
@@ -72,13 +76,15 @@ class Server:
             result.append({
                 'id': player.id,
                 'address': player.address,
-                'position': player.position.xy
+                'position': player.position.xy,
+                'movement': player.movement.xy,
+                'degrees': player.degrees
             })
 
         return result
 
     def handle_client(self, client: socket.socket, address: Tuple[str, int]) -> None:
-        player = _Player(len(self.__clients), address, client, Vec2(random.randint(0, 300), 100))
+        player = _Player(len(self.__clients), address, client, Vec2(random.randint(0, 300), 100), Vec2(0, 0), 90)
         self.__players.append(player)
 
         while True:
@@ -89,7 +95,11 @@ class Server:
                     self.__disconnect_client(address, client, player)
                     break
 
-                for data in self.__test(recv):
+                # update position
+                # player.position.x += player.movement.x
+                # player.position.y += player.movement.y
+
+                for data in self.__processing_data(recv):
                     if data['request'] == 'get_players':  # send all players on the server
                         self.__send({
                             "response": "get_players",
@@ -97,15 +107,14 @@ class Server:
                         }, client)
 
                     if data['request'] == 'move':
-                        if data["side"] == "up":
-                            player.position.y -= 1
-                        if data["side"] == "down":
-                            player.position.y += 1
-
-                        if data["side"] == "left":
-                            player.position.x -= 1
-                        if data["side"] == "right":
+                        if data["side"] == "forward":
                             player.position.x += 1
+
+                        elif data["side"] == "backward":
+                            ...
+
+                    if data['request'] == 'rotate':
+                        player.degrees = data['degrees']
 
             except (ConnectionResetError, OSError, json.decoder.JSONDecodeError):
                 self.__disconnect_client(address, client, player)

@@ -1,4 +1,5 @@
 import colorama
+import datetime
 
 from typing import Tuple, Optional
 
@@ -7,11 +8,11 @@ class ServerNotifier:
 
     @staticmethod
     def notify_connected(address: Tuple[str, int]) -> None:
-        print(colorama.Fore.GREEN + f"Client {address} connected." + colorama.Style.RESET_ALL)
+        print(colorama.Fore.GREEN + f"Client {address} connected. [Time: {datetime.datetime.now()}]" + colorama.Style.RESET_ALL)
 
     @staticmethod
     def notify_disconnected(address: Tuple[str, int]) -> None:
-        print(colorama.Fore.RED + f"Client {address} disconnected." + colorama.Style.RESET_ALL)
+        print(colorama.Fore.RED + f"Client {address} disconnected. [Time: {datetime.datetime.now()}]" + colorama.Style.RESET_ALL)
 
     @staticmethod
     def start_server() -> None:
