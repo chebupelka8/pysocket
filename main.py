@@ -26,7 +26,11 @@ class Main(WindowLoop):
 
         for i in self.client.get_players():
             self.__players.append(
-                Player(Vec2(*i["position"]), i["degrees"], self.client, self.client.get_address())
+                Player(
+                    Vec2(*i["position"]),
+                    i["degrees"],
+                    self.client, self.client.get_address(), i["id"]
+                )
             )
 
     def main(self) -> None:
@@ -38,6 +42,7 @@ class Main(WindowLoop):
                 # player.angle = data["degrees"]
                 # player.rotation()
                 # player.moving()
+                player.draw_id(self.display)
                 player.draw(self.display, player.rotated_image, alignment_flag=AlignmentFlag.CENTER)
 
                 # print(player.address == self.client.get_address())

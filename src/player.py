@@ -13,13 +13,22 @@ from .utils import Math
 
 class Player(StaticSprite):
 
-    def __init__(self, __position: Vec2, __angle: int, client, addr: tuple[str, int]) -> None:
+    def __init__(self, __position: Vec2, __angle: int, client, addr: tuple[str, int], id: int) -> None:
         super().__init__(__position, ImageEditor.rotate(Image("SwitchGame/assets/icon.png"), __angle))
 
         self.__client = client
         self.address = addr
+        self.id = id
+
         self.__rotate_angle = 0
         self.rotated_image: Optional[Image] = None
+
+    def draw_id(self, __display) -> None:
+        text_surf = pygame.font.SysFont(
+            "arial", 17, True, False
+        ).render(str(self.id), True, "white")
+
+        __display.blit(text_surf, (self.position.x, self.position.y - 25))
 
     def get_client(self):
         return self.__client
