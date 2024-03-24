@@ -36,8 +36,8 @@ class Main(WindowLoop):
             for player, data in zip(self.__players, self.client.get_players()):
                 # player.movement = Vec2(*data["movement"])
                 # player.angle = data["degrees"]
-                player.rotation()
-                player.moving()
+                # player.rotation()
+                # player.moving()
                 player.draw(self.display, player.rotated_image, alignment_flag=AlignmentFlag.CENTER)
 
                 # print(player.address == self.client.get_address())

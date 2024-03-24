@@ -61,32 +61,28 @@ class Server:
     def __send(data: dict, client) -> None:
         client.send(bytes(json.dumps(data), "utf-8"))
 
-    def __sendall(self, data: dict, except_requesting: Optional[socket.socket] = None) -> None:
+    def __sendall(self, data: dict) -> None:
         for cl in self.__clients:
-            if except_requesting is not None and cl == except_requesting:
-                print("yes")
-                continue
+            self.__send(data, cl)
 
-            else:
-                self.__send(data, cl)
-
-    def __send_update_players(self, requesting: socket.socket) -> None:
+    def __send_update_players(self, __requesting: socket.socket) -> None:
         self.__sendall({
             "response": "update_players",
-            "players": self.__get_players()
-        }, requesting)
+            "players": self.__get_players(__requesting)
+        })
 
-    def __get_players(self) -> list[dict]:
+    def __get_players(self, __requesting: socket.socket) -> list[dict]:
         result = []
 
         for player in self.__players:
-            result.append({
-                'id': player.id,
-                'address': player.address,
-                'position': player.position.xy,
-                'movement': player.movement.xy,
-                'degrees': player.degrees
-            })
+            if player.sock != __requesting:
+                result.append({
+                    'id': player.id,
+                    'address': player.address,
+                    'position': player.position.xy,
+                    'movement': player.movement.xy,
+                    'degrees': player.degrees
+                })
 
         return result
 
@@ -112,7 +108,7 @@ class Server:
                     if data['request'] == 'get_players':  # send all players on the server
                         self.__send({
                             "response": "get_players",
-                            "players": self.__get_players()
+                            "players": self.__get_players(client)
                         }, client)
 
                     elif data['request'] == 'move':
