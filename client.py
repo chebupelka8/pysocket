@@ -5,6 +5,8 @@ import sys
 import threading
 import time
 
+from src import Strings
+
 from typing import Tuple, Never
 from notify import ClientNotifier
 
@@ -30,8 +32,14 @@ class Client:
         self.__is_connected = True
         self.__players = []
 
+        # commands
+        self.__update_players_command = None
+
         # start receive in the new thread: --
         threading.Thread(target=self.receive).start()
+
+    def set_update_players_command(self, __command) -> None:
+        self.__update_players_command = __command
 
     def get_players(self) -> list:
         return self.__players
@@ -53,8 +61,8 @@ class Client:
             "degrees": __degrees
         })
 
-    def __get_response(self) -> dict:
-        return json.loads(self.client.recv(1024).decode('UTF-8'))
+    def __get_response(self) -> list[dict]:
+        return Strings.processing_data(self.client.recv(1024))
 
     def __send(self, data: dict) -> None:
         self.client.send(bytes(json.dumps(data), "utf-8"))
@@ -72,12 +80,13 @@ class Client:
                 })
 
                 # get response
-                received = self.__get_response()
+                for received in self.__get_response():
+                    if received["response"] == "get_players":
+                        self.__players = received["players"]
 
-                if received["response"] == "get_players":
-                    self.__players = received["players"]
-
-                # print(self.__players)
+                    if received["response"] == "update_players":
+                        self.__players = received["players"]
+                        self.__update_players_command()
 
             except ConnectionResetError:
                 ClientNotifier.disconnection_notify(self.__address, "Server has broken the connection")

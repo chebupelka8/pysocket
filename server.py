@@ -11,7 +11,7 @@ from typing import Tuple, Never
 from SwitchGame import Vec2
 
 from notify import ServerNotifier
-from src import Math
+from src import Math, Strings
 
 HOST, PORT = 'localhost', 5050
 
@@ -54,20 +54,21 @@ class Server:
         self.__clients.remove(client)
         self.__players.remove(player)
 
+        self.__send_update_players()
+
     @staticmethod
     def __send(data: dict, client) -> None:
         client.send(bytes(json.dumps(data), "utf-8"))
 
-    @staticmethod
-    def __processing_data(__data: bytes) -> list[dict]:
-        requests = []
-        split_data: list[str] = re.split(r'}(?={)', __data.decode('utf-8'))
+    def __sendall(self, data: dict) -> None:
+        for cl in self.__clients:
+            self.__send(data, cl)
 
-        for req in split_data:
-            if req[-1] != "}": req = req + "}"
-            requests.append(json.loads(req))
-
-        return requests
+    def __send_update_players(self) -> None:
+        self.__sendall({
+            "response": "update_players",
+            "players": self.__get_players()
+        })
 
     def __get_players(self) -> list[dict]:
         result = []
@@ -87,6 +88,8 @@ class Server:
         player = _Player(len(self.__clients), address, client, Vec2(random.randint(0, 300), 100), Vec2(0, 0), 90)
         self.__players.append(player)
 
+        self.__send_update_players()
+
         while True:
             try:
                 recv = client.recv(1024)
@@ -99,19 +102,23 @@ class Server:
                 # player.position.x += player.movement.x
                 # player.position.y += player.movement.y
 
-                for data in self.__processing_data(recv):
+                for data in Strings.processing_data(recv):
                     if data['request'] == 'get_players':  # send all players on the server
                         self.__send({
                             "response": "get_players",
                             "players": self.__get_players()
                         }, client)
+                        print(self.__get_players())
 
                     if data['request'] == 'move':
                         if data["side"] == "forward":
-                            player.position.x += 1
+                            player.movement.x = 1
 
                         elif data["side"] == "backward":
                             ...
+
+                        # else:
+                        #     player.movement = Vec2(0, 0)
 
                     if data['request'] == 'rotate':
                         player.degrees = data['degrees']

@@ -8,6 +8,8 @@ class Main(WindowLoop):
         super().__init__(Vec2(1000, 600), 165)
 
         self.client = Client(('localhost', 5050))
+        self.client.set_update_players_command(self.__generate_players)
+
         self.__players: list[StaticSprite] = []
 
     def update_events(self, __event) -> None:
@@ -19,7 +21,7 @@ class Main(WindowLoop):
             super().update_events(__event)
 
     def __generate_players(self) -> None:
-        # never used
+        self.__players.clear()
 
         for i in self.client.get_players():
             self.__players.append(
@@ -30,8 +32,9 @@ class Main(WindowLoop):
         # self.__generate_players()
 
         while True:  # mainloop
-            for i in self.client.get_players():
-                player = StaticSprite(Vec2(*i["position"]), Image("SwitchGame/assets/icon.png"))
+            for player, data in zip(self.__players, self.client.get_players()):
+                # player = StaticSprite(Vec2(*i["position"]), Image("SwitchGame/assets/icon.png"))
+                player.movement = Vec2(*data["movement"])
                 player.draw(self.display)
 
             keypressed = pygame.key.get_pressed()
