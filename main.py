@@ -26,7 +26,7 @@ class Main(WindowLoop):
 
         for i in self.client.get_players():
             self.__players.append(
-                Player(Vec2(*i["position"]), i["degrees"], self.client)
+                Player(Vec2(*i["position"]), i["degrees"], self.client, self.client.get_address())
             )
 
     def main(self) -> None:
@@ -34,13 +34,13 @@ class Main(WindowLoop):
 
         while True:  # mainloop
             for player, data in zip(self.__players, self.client.get_players()):
-                player.movement = Vec2(*data["movement"])
-                player.angle = data["degrees"]
+                # player.movement = Vec2(*data["movement"])
+                # player.angle = data["degrees"]
                 player.rotation()
                 player.moving()
                 player.draw(self.display, player.rotated_image, alignment_flag=AlignmentFlag.CENTER)
 
-                # print(player.get_client() == self.client)
+                # print(player.address == self.client.get_address())
                 #     player.moving()
 
             # keypress = pygame.key.get_pressed()

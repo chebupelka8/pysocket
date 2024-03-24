@@ -7,7 +7,7 @@ import threading
 
 from dataclasses import dataclass
 
-from typing import Tuple, Never
+from typing import Tuple, Never, Optional
 from SwitchGame import Vec2
 
 from notify import ServerNotifier
@@ -55,21 +55,26 @@ class Server:
         self.__clients.remove(client)
         self.__players.remove(player)
 
-        self.__send_update_players()
+        self.__send_update_players(client)
 
     @staticmethod
     def __send(data: dict, client) -> None:
         client.send(bytes(json.dumps(data), "utf-8"))
 
-    def __sendall(self, data: dict) -> None:
+    def __sendall(self, data: dict, except_requesting: Optional[socket.socket] = None) -> None:
         for cl in self.__clients:
-            self.__send(data, cl)
+            if except_requesting is not None and cl == except_requesting:
+                print("yes")
+                continue
 
-    def __send_update_players(self) -> None:
+            else:
+                self.__send(data, cl)
+
+    def __send_update_players(self, requesting: socket.socket) -> None:
         self.__sendall({
             "response": "update_players",
             "players": self.__get_players()
-        })
+        }, requesting)
 
     def __get_players(self) -> list[dict]:
         result = []
@@ -89,7 +94,7 @@ class Server:
         player = _Player(len(self.__clients), address, client, Vec2(random.randint(0, 300), 100))
         self.__players.append(player)
 
-        self.__send_update_players()
+        self.__send_update_players(client)
 
         while True:
             try:

@@ -40,6 +40,9 @@ class Client:
         # start receive in the new thread: --
         threading.Thread(target=self.receive).start()
 
+    def get_address(self) -> Tuple[str, int]:
+        return self.__address
+
     def set_update_players_command(self, __command) -> None:
         self.__update_players_command = __command
 
