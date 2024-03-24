@@ -13,8 +13,8 @@ from .utils import Math
 
 class Player(StaticSprite):
 
-    def __init__(self, __position: Vec2, client) -> None:
-        super().__init__(__position, ImageEditor.rotate(Image("SwitchGame/assets/icon.png"), -90))
+    def __init__(self, __position: Vec2, __angle: int,  client) -> None:
+        super().__init__(__position, ImageEditor.rotate(Image("SwitchGame/assets/icon.png"), __angle))
 
         self.__client = client
         self.__rotate_angle = 0
@@ -22,6 +22,14 @@ class Player(StaticSprite):
 
     def get_client(self):
         return self.__client
+
+    @property
+    def angle(self) -> int:
+        return self.__rotate_angle
+
+    @angle.setter
+    def angle(self, value: int) -> None:
+        self.__rotate_angle = value
 
     def rotation(self) -> None:
         self.rotated_image = ImageEditor.rotate(self.image, self.__rotate_angle)
