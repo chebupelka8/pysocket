@@ -105,4 +105,4 @@ class Client:
         sys.exit()
 
     def __repr__(self) -> str:
-        return f'Client(address={self.__address})'
+        return f'Client(address={self.__address}, socket={self.client})'

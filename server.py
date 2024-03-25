@@ -2,6 +2,7 @@ import random
 import socket
 import json
 import re
+import colorama
 
 import threading
 
@@ -84,6 +85,8 @@ class Server:
                     'degrees': player.degrees
                 })
 
+        # print(f"From {__requesting}:", colorama.Fore.LIGHTBLUE_EX, result, colorama.Style.RESET_ALL)
+
         return result
 
     def handle_client(self, client: socket.socket, address: Tuple[str, int]) -> None:
@@ -101,8 +104,8 @@ class Server:
                     break
 
                 # update position
-                # player.position.x += player.movement.x
-                # player.position.y += player.movement.y
+                # player.position.x += player.movement.x // 4
+                # player.position.y += player.movement.y // 4
 
                 for data in Strings.processing_data(recv):
                     if data['request'] == 'get_players':  # send all players on the server
@@ -112,7 +115,8 @@ class Server:
                         }, client)
 
                     elif data['request'] == 'move':
-                        player.movement = Vec2(*data['movement'])
+                        # player.movement = Vec2(*data['movement'])
+                        player.position.x += 1
 
                     elif data['request'] == 'rotate':
                         player.degrees = data['degrees']

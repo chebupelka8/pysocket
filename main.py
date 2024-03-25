@@ -3,6 +3,8 @@ from SwitchGame import *
 from client import Client
 from src import Player, Math
 
+import colorama
+
 
 class Main(WindowLoop):
     def __init__(self) -> None:
@@ -10,6 +12,7 @@ class Main(WindowLoop):
 
         self.client = Client(('localhost', 5050))
         self.client.set_update_players_command(self.__generate_players)
+        self.set_window_title(str(self.client))
 
         self.__players: list[StaticSprite] = []
 
@@ -34,16 +37,23 @@ class Main(WindowLoop):
             )
 
     def main(self) -> None:
-        # self.__generate_players()
 
         while True:  # mainloop
+            # self.__generate_players()
+            # print(f"From {self.client}:", colorama.Fore.LIGHTBLUE_EX, self.client.get_players(), colorama.Style.RESET_ALL)
             for player, data in zip(self.__players, self.client.get_players()):
                 # player.movement = Vec2(*data["movement"])
                 # player.angle = data["degrees"]
                 # player.rotation()
                 # player.moving()
+                player.id = data["id"]
+                player.movement = Vec2(*data["movement"])
+                player.position = Vec2(*data["position"])
                 player.draw_id(self.display)
                 player.draw(self.display, player.rotated_image, alignment_flag=AlignmentFlag.CENTER)
+
+            if pygame.key.get_pressed()[K_w]:
+                self.client.move(Math.get_vector_from_angle(0, 3))
 
                 # print(player.address == self.client.get_address())
                 #     player.moving()
